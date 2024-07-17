@@ -70,3 +70,10 @@ func (c *Client) GetOrganizationTeams(o Organization) ([]Team, error) {
 	err := c.do("GET", fmt.Sprintf("organizations/%s/teams", *o.Slug), &teams, nil)
 	return teams, err
 }
+
+// GetOrganizationTeams will fetch all teams for this org
+func (c *Client) GetOrganizationMembers(o Organization) ([]Member, error) {
+	members := make([]Member, 0)
+	err := c.do("GET", fmt.Sprintf("organizations/%s/members", *o.Slug), &members, nil)
+	return members, err
+}
