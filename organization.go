@@ -29,6 +29,35 @@ type Organization struct {
 	Features             *[]string  `json:"features,omitempty"`
 }
 
+// SCIMResource represents the structure for SCIM API response.
+type SCIMResource struct {
+	Schemas      []string   `json:"schemas"`
+	TotalResults int        `json:"totalResults"`
+	StartIndex   int        `json:"startIndex"`
+	ItemsPerPage int        `json:"itemsPerPage"`
+	Resources    []Resource `json:"Resources"`
+}
+
+// Resource represents the individual resources within the SCIM API response.
+type Resource struct {
+	Schemas     []string     `json:"schemas"`
+	ID          string       `json:"id"`
+	DisplayName string       `json:"displayName"`
+	Meta        Meta         `json:"meta"`
+	Members     []SCIMMember `json:"members,omitempty"`
+}
+
+// Meta provides metadata about SCIM resources.
+type Meta struct {
+	ResourceType string `json:"resourceType"`
+}
+
+// Member represents the members of a SCIM resource group.
+type SCIMMember struct {
+	Value   string `json:"value"`
+	Display string `json:"display"`
+}
+
 // GetOrganization takes a org slug and returns back the org
 func (c *Client) GetOrganization(orgslug string) (Organization, error) {
 	var org Organization
@@ -76,4 +105,12 @@ func (c *Client) GetOrganizationMembers(o Organization) ([]Member, error) {
 	members := make([]Member, 0)
 	err := c.do("GET", fmt.Sprintf("organizations/%s/members", *o.Slug), &members, nil)
 	return members, err
+}
+
+// GetTeamProjects fetchs all projects for a Team
+func (c *Client) GetOrganizationTeamsSCIM(o Organization) (SCIMResource, error) {
+	// members := make([]Member, 0)
+	scimResponse := SCIMResource{}
+	err := c.do("GET", fmt.Sprintf("organizations/%s/scim/v2/Groups", *o.Slug), &scimResponse, nil)
+	return scimResponse, err
 }
